@@ -6,8 +6,8 @@ export function makeSeedMemos(): Memo[] {
   return [
     {
       id: uuid(),
-      title: "score-manager-backendのREADME.md",
-      content: `# 概要\n\n本プロジェクトは...\n\n## 機能一覧\n- API レスポンス ...`,
+      title: "TestTitle",
+      content: `# タイトル \n- りんご \n- みかん \n \n| A | B | \n|---|---| \n| 1 | 2 | \n`,
       createdAt: now,
       updatedAt: now,
     },
