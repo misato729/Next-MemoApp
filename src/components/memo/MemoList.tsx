@@ -21,7 +21,7 @@ export default function MemoList() {
       <div className="flex gap-2">
         <Button className="w-full" onClick={onNew}>+ New</Button>
       </div>
-      <ul className="space-y-2">
+      <ul className="space-y-100">
         {memos.map((m) => (<MemoCard key={m.id} memo={m} />))}
       </ul>
     </aside>
