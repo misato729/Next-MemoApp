@@ -6,9 +6,9 @@ type PageProps = {
   searchParams?: Record<string, string | string[] | undefined>;
 };
 
-export default function EditPage({ searchParams }: PageProps) {
+export default function EditPage({ searchParams }: any) {
   const raw = searchParams?.id;
-  const id = Array.isArray(raw) ? raw[0] : raw; // ← string | undefined に絞る
+  const id = Array.isArray(raw) ? raw[0] : raw;
 
   return (
     <main className="grid grid-cols-1 lg:grid-cols-[18rem_1fr] gap-6">
