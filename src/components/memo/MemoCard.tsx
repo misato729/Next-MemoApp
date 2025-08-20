@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Memo } from "@/types/memo";
 import { Button } from "@/components/ui/button";
 import { useMemoStore } from "@/hooks/useMemoStore";
+import { toast } from "sonner"; 
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,7 +42,7 @@ export function MemoCard({ memo }: { memo: Memo }) {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>キャンセル</AlertDialogCancel>
-              <AlertDialogAction onClick={() => remove(memo.id)}>削除する</AlertDialogAction>
+              <AlertDialogAction onClick={() => {remove(memo.id);toast.success("削除しました")}}>削除する</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

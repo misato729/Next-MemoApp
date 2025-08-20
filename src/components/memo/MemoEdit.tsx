@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
+// 先頭に追記
+import { toast } from "sonner";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,29 +46,43 @@ export default function MemoEdit({ id }: { id?: string }) {
   }, [current?.id]);
 
   // 保存ボタンのハンドラー：既存メモなら update, 新規メモなら add, 新規作成したときはURLを新しいidに置き換え
-const onSave = (): string => {
-  if (current) {
-    update(current.id, { title, content });
-    return current.id;
-  } else {
-    const newId = add({ title: title || "新規メモ", content });
-    // URLも正しいidに置き換える（historyではなくNextのrouterを使う）
-    router.replace(`/edit?id=${newId}`);
-    return newId;
-  }
-};
-
+  const onSave = (): string => {
+    if (current) {
+      update(current.id, { title, content });
+      toast.success("保存しました", { description: new Date().toLocaleString() }); 
+      return current.id;
+    } else {
+      const newId = add({ title: title || "新規メモ", content });
+      router.replace(`/edit?id=${newId}`);
+      toast.success("新規メモを保存しました", { description: new Date().toLocaleString() }); 
+      return newId;
+    }
+  };
 // クリック時に保存→viewへ
 const handleSaveAndView = () => {
   const savedId = onSave();
   router.push(`/view?id=${savedId}`);
 };
-  // 削除ボタンのハンドラー：該当メモを削除し、トップページへ戻る
-  const onDelete = () => {
-    if (!current) return;
-    remove(current.id);
-    router.push("/");
+
+useEffect(() => {
+  const handler = (e: KeyboardEvent) => {
+    const mac = navigator.platform.toLowerCase().includes("mac");
+    if ((mac ? e.metaKey : e.ctrlKey) && e.key.toLowerCase() === "s") {
+      e.preventDefault();
+      onSave();
+    }
   };
+  window.addEventListener("keydown", handler);
+  return () => window.removeEventListener("keydown", handler);
+}, [onSave]);
+
+// 削除ボタンのハンドラー：該当メモを削除し、トップページへ戻る
+const onDelete = () => {
+  if (!current) return;
+  remove(current.id);
+  toast.success("削除しました"); 
+  router.push("/");
+};
 
   return (
     <div className="space-y-3">
