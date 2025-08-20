@@ -1,8 +1,15 @@
 import MemoList from "@/components/memo/MemoList";
 import MemoView from "@/components/memo/MemoView";
 
-export default function ViewPage({ searchParams }: { searchParams: { id?: string } }) {
-  const id = searchParams?.id;
+export default async function ViewPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const raw = sp?.id;
+  const id = Array.isArray(raw) ? raw[0] : raw;
+
   return (
     <main className="grid grid-cols-1 lg:grid-cols-[18rem_1fr] gap-6">
       {/* 左：一覧 */}

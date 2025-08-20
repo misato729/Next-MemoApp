@@ -1,13 +1,13 @@
-// app/edit/page.tsx
 import MemoList from "@/components/memo/MemoList";
 import MemoView from "@/components/memo/MemoView";
 
-type PageProps = {
-  searchParams?: Record<string, string | string[] | undefined>;
-};
-
-export default function EditPage({ searchParams }: any) {
-  const raw = searchParams?.id;
+export default async function EditPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const raw = sp?.id;
   const id = Array.isArray(raw) ? raw[0] : raw;
 
   return (
