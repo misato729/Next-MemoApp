@@ -21,33 +21,46 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function MemoEdit({ id }: { id?: string }) {
+  //ストアとの接続
   const { memos, load, update, add, remove } = useMemoStore();
+  // Next.jsのルーターを使用
   const router = useRouter();
-
+  // 初期ロード
   useEffect(() => {
     load();
   }, [load]);
-
+  // URLのクエリパラメータ id から該当するメモを探す
   const current = useMemo(() => memos.find((m) => m.id === id), [memos, id]);
-
+  // 編集用の状態管理
   const [title, setTitle] = useState(current?.title ?? "");
   const [content, setContent] = useState(current?.content ?? "");
   const [mode, setMode] = useState<"edit" | "preview">("edit");
 
+  // メモが変更されたときにタイトルと内容を更新
   useEffect(() => {
     setTitle(current?.title ?? "");
     setContent(current?.content ?? "");
   }, [current?.id]);
 
-  const onSave = () => {
-    if (current) {
-      update(current.id, { title, content });
-    } else {
-      const newId = add({ title: title || "新規メモ", content });
-      history.replaceState(null, "", `/edit?id=${newId}`);
-    }
-  };
+  // 保存ボタンのハンドラー：既存メモなら update, 新規メモなら add, 新規作成したときはURLを新しいidに置き換え
+const onSave = (): string => {
+  if (current) {
+    update(current.id, { title, content });
+    return current.id;
+  } else {
+    const newId = add({ title: title || "新規メモ", content });
+    // URLも正しいidに置き換える（historyではなくNextのrouterを使う）
+    router.replace(`/edit?id=${newId}`);
+    return newId;
+  }
+};
 
+// クリック時に保存→viewへ
+const handleSaveAndView = () => {
+  const savedId = onSave();
+  router.push(`/view?id=${savedId}`);
+};
+  // 削除ボタンのハンドラー：該当メモを削除し、トップページへ戻る
   const onDelete = () => {
     if (!current) return;
     remove(current.id);
@@ -91,18 +104,22 @@ export default function MemoEdit({ id }: { id?: string }) {
               </AlertDialogContent>
             </AlertDialog>
           )}
-          <Button onClick={onSave}>Save</Button>
+          <Button onClick={handleSaveAndView}>Save</Button>
         </div>
       </div>
 
       {/* 本文エリア */}
       <div className="rounded-2xl border p-4 bg-card">
-        <Input
-          placeholder="タイトル"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="mb-3 text-lg"
-        />
+      {mode === "edit" ? (
+          <Input
+            placeholder="タイトル"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="mb-3 text-lg"
+          />
+        ) : (
+          <h1 className="mb-3 text-xl font-bold">{title || "(無題)"}</h1>
+        )}
         {mode === "edit" ? (
           <Textarea
             placeholder="# 見出し\n本文... (Markdown対応)\n\n| A | B |\n|---|---|\n| 1 | 2 |"
@@ -112,8 +129,8 @@ export default function MemoEdit({ id }: { id?: string }) {
           />
         ) : (
           <div className="markdown-body">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {content}
+            <ReactMarkdown remarkPlugins={[remarkGfm]} >
+              {content|| "(本文がありません)"}
             </ReactMarkdown>
           </div>
         )}
