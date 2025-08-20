@@ -1,8 +1,15 @@
+// app/edit/page.tsx
 import MemoList from "@/components/memo/MemoList";
 import MemoView from "@/components/memo/MemoView";
 
-export default function EditPage({ searchParams }: { searchParams: { id?: string } }) {
-  const id = searchParams?.id;
+type PageProps = {
+  searchParams?: Record<string, string | string[] | undefined>;
+};
+
+export default function EditPage({ searchParams }: PageProps) {
+  const raw = searchParams?.id;
+  const id = Array.isArray(raw) ? raw[0] : raw; // ← string | undefined に絞る
+
   return (
     <main className="grid grid-cols-1 lg:grid-cols-[18rem_1fr] gap-6">
       {/* 左：一覧 */}
