@@ -46,7 +46,10 @@ export default function MemoDetail({ id }: { id?: string }) {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button asChild>
+          <Button
+            asChild
+            className="transition-transform active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/50"
+          >
             <Link href={`/edit?id=${memo.id}`}>Edit</Link>
           </Button>
         </div>

@@ -1,5 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { useMemoStore } from "@/hooks/useMemoStore";
 import { MemoCard } from "./MemoCard";
 import { Button } from "@/components/ui/button";
@@ -9,13 +11,20 @@ export default function MemoList() {
   const { memos, load, add, move } = useMemoStore();
   const router = useRouter();
   const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => { load(); }, [load]);
 
   const onNew = () => {
-    const id = add({ title: "新規メモ", content: "" });
-    router.push(`/edit?id=${id}`);
+    startTransition(() => {
+      const id = add({ title: "新規メモ", content: "" });
+      toast.message("新規メモを作成しました");
+      router.push(`/edit?id=${id}`);
+    });
   };
+
+
+
 
   // Drag handlers
   const handleDragStart = (e: React.DragEvent<HTMLLIElement>, id: string) => {
@@ -45,7 +54,14 @@ export default function MemoList() {
   return (
     <aside className="w-full lg:w-72 shrink-0 space-y-3">
       <div className="flex gap-2">
-        <Button className="w-full" onClick={onNew}>+ New</Button>
+        <Button
+          className="w-full transition-transform active:scale-95 focus-visible:ring-2 focus-visible:ring-primary/50"
+          onClick={onNew}
+          disabled={isPending}
+        >
+          {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isPending ? "Opening..." : "+ New"}
+        </Button>
       </div>
 
       <ul className="space-y-2">
