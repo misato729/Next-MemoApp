@@ -138,12 +138,13 @@ const onDelete = () => {
           <h1 className="mb-3 text-xl font-bold">{title || "(無題)"}</h1>
         )}
         {mode === "edit" ? (
-          <Textarea
-            placeholder="# 見出し\n本文... (Markdown対応)\n\n| A | B |\n|---|---|\n| 1 | 2 |"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="min-h-[50vh]"
-          />
+        <Textarea
+        placeholder={`Markdown記法が使えます
+  例: # 見出し, - リスト, | 表 |`}
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        className="min-h-[50vh]"
+      />
         ) : (
           <div className="markdown-body">
             <ReactMarkdown remarkPlugins={[remarkGfm]} >
