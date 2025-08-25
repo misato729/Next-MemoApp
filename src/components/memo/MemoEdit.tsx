@@ -36,7 +36,7 @@ export default function MemoEdit({ id }: { id?: string }) {
   }, [load]);
   
   // memos の中から、URLの id に一致するメモを探す。memosやidが変わった時だけ再計算する
-  // useMemoはVueのcomputed()に似ている
+  // useMemo()は計算結果（値）をメモ化し、重い計算の再実行を防ぐ。Vueのcomputed()に似ている
   const current = useMemo(() => memos.find((m) => m.id === id), [memos, id]);
   
   // 編集用の状態管理。useStateはVueのref()やreactive()に似ている
@@ -51,6 +51,7 @@ export default function MemoEdit({ id }: { id?: string }) {
   }, [current?.id]);
 
   // 保存ボタンのハンドラー：既存メモなら update, 新規メモなら add, 新規作成したときはURLを新しいidに置き換え
+  // useCallback()は関数をメモ化し、関数の再生成を防ぐ。ここではuseEffectの依存に使われていて、イベントリスナーの安定性が必要だから使用している
   const onSave = useCallback((): string => {
     if (current) {
       update(current.id, { title, content });
@@ -65,6 +66,7 @@ export default function MemoEdit({ id }: { id?: string }) {
   }, [current, title, content, update, add, router]);
   
   // クリック時に保存→viewへ
+  // onSave を使っていて、関数の再生成を防ぎたいのでuseCallback
   const handleSaveAndView = useCallback(() => {
     const savedId = onSave();
     router.push(`/view?id=${savedId}`);
