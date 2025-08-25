@@ -20,6 +20,7 @@ import {
 import { useState } from "react";
 
 export function MemoCard({ memo }: { memo: Memo }) {
+  //useMemoStore という Zustandのストアから、remove という関数だけを取り出して、remove(memo.id) で削除できるようにしている（80行目）
   const remove = useMemoStore((s) => s.remove);
   const [deleting, setDeleting] = useState(false);
 
@@ -71,6 +72,7 @@ export function MemoCard({ memo }: { memo: Memo }) {
                   size="sm"
                   variant="destructive"
                   disabled={deleting}
+                  // 削除処理
                   onClick={async () => {
                     setDeleting(true);
                     const id = `del-${memo.id}`;
@@ -84,6 +86,11 @@ export function MemoCard({ memo }: { memo: Memo }) {
                       setDeleting(false);
                     }
                   }}
+                  // 1. 削除ボタンを押すと onClick が発火
+                  // 2. remove(memo.id) を呼び出して、Zustandのストアからメモを削除
+                  // 3. persist() 関数が内部で呼ばれて、LocalStorageも更新される
+                  // 4. トースト（通知）で「削除中」「削除成功」「削除失敗」を表示
+                  // 5. setDeleting(true/false) でスピナー（くるくる）を表示・非表示
                 >
                   {deleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   削除する
