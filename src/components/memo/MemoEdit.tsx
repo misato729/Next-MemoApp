@@ -29,18 +29,22 @@ export default function MemoEdit({ id }: { id?: string }) {
   // Next.jsのルーターを使用
   const router = useRouter();
 
-  // 初期ロード
+  // 初期ロード　コンポーネントが表示されたときに、LocalStorageからメモ一覧を読み込む
+  // useEffectはVueのonMounted(),watch()に似ている
   useEffect(() => {
     load();
   }, [load]);
-  // URLのクエリパラメータ id から該当するメモを探す
+  
+  // memos の中から、URLの id に一致するメモを探す。memosやidが変わった時だけ再計算する
+  // useMemoはVueのcomputed()に似ている
   const current = useMemo(() => memos.find((m) => m.id === id), [memos, id]);
-  // 編集用の状態管理
+  
+  // 編集用の状態管理。useStateはVueのref()やreactive()に似ている
   const [title, setTitle] = useState(current?.title ?? "");
   const [content, setContent] = useState(current?.content ?? "");
   const [mode, setMode] = useState<"edit" | "preview">("edit");
 
-  // メモが変更されたときにタイトルと内容を更新
+  // メモが変更されたとき（idが変わったとき）にタイトルと内容を更新
   useEffect(() => {
     setTitle(current?.title ?? "");
     setContent(current?.content ?? "");
@@ -59,6 +63,7 @@ export default function MemoEdit({ id }: { id?: string }) {
       return newId;
     }
   }, [current, title, content, update, add, router]);
+  
   // クリック時に保存→viewへ
   const handleSaveAndView = useCallback(() => {
     const savedId = onSave();
