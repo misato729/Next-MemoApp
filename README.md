@@ -6,31 +6,27 @@ Next.js（App Router）+ Zustand + shadcn/ui で作った**マークダウン対
 
 データベースは不要で、**ブラウザのLocalStorageのみ**で動作します。
 
-## ディレクトリ
-```
-src/
-├── app/
-│   ├── layout.tsx       // 全体レイアウト
-│   ├── page.tsx         // / 一覧+詳細
-│   ├── view/page.tsx    // /view?id=xxx 表示専用
-│   └── edit/page.tsx    // /edit?id=xxx 編集用
-│   └── globals.css
-├── components/
-│   ├── layout/Header.tsx
-│   ├── memo/
-│   │   ├── MemoList.tsx
-│   │   ├── MemoCard.tsx
-│   │   ├── MemoDetail.tsx
-│   │   ├── MemoEdit.tsx
-│   │   └── MemoView.tsx
-├── hooks/
-│   └── useMemoStore.ts  // Zustand store
-├── types/
-│   └── memo.ts
-└── utils/
-    └── memo.ts
+## 背景
+フロントエンドのフレームワークはVue.jsしか触れたことがなかったため、  
+React/Next.jsの学習としてCRUDを一通りできるWebアプリを作ろうと思ったから。
 
-```
+## 主な機能
+- メモの作成・編集・削除
+- Markdown記法対応
+- 編集時のプレビュー表示
+- メモの一覧表示・詳細表示
+
+## 状態管理（Zustand）
+コード→[useMemoStore.ts](https://github.com/misato729/Next-MemoApp/blob/main/src/hooks/useMemoStore.ts)  
+Zustandを使って、メモ一覧や選択中のメモなどの状態をグローバルに管理しています。  
+また、`persist` 関数を通じて、LocalStorageに状態を保存することで、ページをリロードしてもメモが保持されるようにしています。
+
+主な役割：
+- メモ一覧の保持とCRUD操作（add, update, remove）
+- 並び替え機能（move）
+- LocalStorageとの連携（load, persist）
+- 初期データの投入とエラーハンドリング（makeSeedMemos）
+
 ## 技術スタック
 
  - Next.js 15 (App Router)
@@ -53,7 +49,8 @@ src/
 
 
 ## 今後の展望
-- 検索機能の追加
-- レスポンシブ対応
-- 認証機能の追加
-- DB連携
+- 🔍 検索機能の追加（メモ数が増えたときのUX向上）
+- 📱 レスポンシブ対応（スマホでも使いやすく）
+- 🔐 認証機能の追加（ユーザーごとのメモ管理）
+- 🗄️ DB連携（本格的なバックエンド連携の練習）
+
