@@ -8,25 +8,31 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 export default function MemoList() {
+  // Zustandのストアから状態と関数を取得
   const { memos, load, add, move } = useMemoStore();
+  // Next.jsのルーターを使用
   const router = useRouter();
+  // ドラッグオーバー中のメモIDを状態で管理
   const [dragOverId, setDragOverId] = useState<string | null>(null);
+  // 画面遷移などのための状態遷移中フラグ
   const [isPending, startTransition] = useTransition();
 
+  // 初期ロード：コンポーネントが表示されたときに、LocalStorageからメモ一覧を読み込む
   useEffect(() => { load(); }, [load]);
 
+  // 新規メモ作成ハンドラー
   const onNew = () => {
+    // startTransitionで状態遷移中フラグを管理。遷移中はボタンを無効化してローダーを表示
     startTransition(() => {
+      // add()で新しいメモを追加し、そのIDを取得
       const id = add({ title: "新規メモ", content: "" });
       toast.message("新規メモを作成しました");
+      // 生成したIDを使って編集画面に遷移
       router.push(`/edit?id=${id}`);
     });
   };
 
-
-
-
-  // Drag handlers
+  // ドラッグアンドドロップのハンドラー群
   const handleDragStart = (e: React.DragEvent<HTMLLIElement>, id: string) => {
     // idをドラッグデータに乗せる
     e.dataTransfer.setData("text/plain", id);
