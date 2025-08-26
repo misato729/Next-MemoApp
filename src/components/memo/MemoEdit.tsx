@@ -72,17 +72,20 @@ export default function MemoEdit({ id }: { id?: string }) {
     router.push(`/view?id=${savedId}`);
   }, [onSave, router]);
 
+  // cmd/ctrl + S で保存
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const mac = navigator.platform.toLowerCase().includes("mac");
-      if ((mac ? e.metaKey : e.ctrlKey) && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        onSave();
-      }
+      const isSaveShortcut = (mac ? e.metaKey : e.ctrlKey) && e.key.toLowerCase() === "s";
+      if (!isSaveShortcut) return;
+  
+      e.preventDefault();           // ← 条件の中で止める
+      handleSaveAndView();          // ← DRY：同じ関数を使う
     };
+  
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [onSave]);
+  }, [handleSaveAndView]);           // ← 依存は handleSaveAndView
 
   // 削除ボタンのハンドラー：該当メモを削除し、トップページへ戻る
   const onDelete = useCallback(() => {
