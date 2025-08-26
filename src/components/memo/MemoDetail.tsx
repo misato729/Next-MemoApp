@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useMemoStore } from "@/hooks/useMemoStore";
 
 export default function MemoDetail({ id }: { id?: string }) {
-  const router = useRouter();
+  // Zustandストアからメモ配列とロード関数を取得
   const { memos, load } = useMemoStore();
 
   // 初回ロード
@@ -18,9 +18,10 @@ export default function MemoDetail({ id }: { id?: string }) {
   }, [load]);
 
   // 指定IDのメモ。なければ先頭メモにフォールバック
+  // useMemo()は計算結果（値）をメモ化し、重い計算の再実行を防ぐ
   const memo = useMemo(() => {
-    if (!memos?.length) return undefined;
-    const found = id ? memos.find((m) => m.id === id) : undefined;
+    if (!memos?.length) return undefined; // メモが空なら undefined
+    const found = id ? memos.find((m) => m.id === id) : undefined; // IDがあれば探す
     return found ?? memos[0];
   }, [memos, id]);
 
