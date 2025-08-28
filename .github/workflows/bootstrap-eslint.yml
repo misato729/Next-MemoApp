@@ -1,0 +1,51 @@
+name: Bootstrap ESLint (one-time)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install ESLint & Next config
+        run: npm i -D eslint eslint-config-next
+
+      - name: Add ESLint config file if missing
+        run: |
+          if [ ! -f .eslintrc.json ]; then
+            cat > .eslintrc.json <<'EOF'
+            {
+              "extends": ["next", "next/core-web-vitals"]
+            }
+            EOF
+          fi
+
+      - name: Ensure tsconfig include has .next/types
+        run: |
+          if [ -f tsconfig.json ]; then
+            node -e 'const fs=require("fs");const p="tsconfig.json";const j=JSON.parse(fs.readFileSync(p,"utf8"));j.include=j.include||["next-env.d.ts","**/*.ts","**/*.tsx"];if(!j.include.includes(".next/types/**/*.ts")) j.include.push(".next/types/**/*.ts");fs.writeFileSync(p,JSON.stringify(j,null,2)+"\n");'
+          fi
+
+      - name: Ensure package.json scripts
+        run: |
+          node -e 'const fs=require("fs");const p="package.json";const j=JSON.parse(fs.readFileSync(p,"utf8"));j.scripts=j.scripts||{};j.scripts.lint=j.scripts.lint||"next lint";j.scripts.typecheck=j.scripts.typecheck||"tsc --noEmit";j.scripts.build=j.scripts.build||"next build";fs.writeFileSync(p,JSON.stringify(j,null,2)+"\n");'
+
+      - name: Commit and push changes
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json .eslintrc.json tsconfig.json || true
+          git commit -m "chore(eslint): bootstrap ESLint config and lockfile" || echo "No changes to commit"
+          git push
