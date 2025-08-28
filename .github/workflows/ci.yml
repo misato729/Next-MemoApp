@@ -19,11 +19,8 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-
       - name: Install dependencies
-        run: |
-          if [ -f package-lock.json ]; then npm ci; else npm install; fi
-
+        run: npm ci
 
       - name: Lint
         run: npm run lint
@@ -33,4 +30,3 @@ jobs:
 
       - name: Build
         run: npm run build
-
