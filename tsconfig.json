@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",                      // ルート基準にする
+    "paths": {
+      "@/*": ["src/*"]                   // "@/..." を "src/..." に解決
+    },
     "target": "ES2020",
     "lib": [
       "dom",
@@ -23,11 +27,6 @@
         "name": "next"
       }
     ]
-  },
-    "baseUrl": ".",                      // ルート基準にする
-    "paths": {
-      "@/*": ["src/*"]                   // "@/..." を "src/..." に解決
-    }
   },
   "include": [
     "next-env.d.ts",
