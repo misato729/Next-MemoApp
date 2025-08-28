@@ -2,13 +2,13 @@
 https://next-memo-app-five.vercel.app/
 
 ## 概要
-Next.js（App Router）+ Zustand + shadcn/ui で作った**マークダウン対応メモアプリ**です。
+Next.js（App Router）+ Zustand + shadcn/ui を用いて開発した、**Markdown対応のシンプルなメモアプリ**です。
 
 データベースは不要で、**ブラウザのLocalStorageのみ**で動作します。
 
 ## 背景
 フロントエンドのフレームワークはVue.jsしか触れたことがなかったため、  
-React/Next.jsの学習としてCRUDを一通りできるWebアプリを作ろうと思ったから。
+React/Next.jsの学習としてCRUD操作を一通りできるWebアプリを作ろうと思ったから。
 
 ## 主な機能
 - メモの作成・編集・削除
@@ -36,7 +36,13 @@ Zustandを使って、メモ一覧や選択中のメモなどの状態をグロ�
  - react-markdown+ remark-gfm
  - TailwindCSS + oklch color theme
  - LocalStorage persistence
- - ![CI](https://github.com/misato729/Next-MemoApp)
+
+## CI/CD
+- GitHub Actionsを使用して、mainブランチへのプッシュ時に以下の処理を自動実行します。
+  - ESLintによるコードの静的解析
+  - TypeScriptによる型チェック
+  - アプリケーションのビルド
+- 上記の処理に問題がなければ、Vercelにより自動的に本番環境へデプロイされます。
 
 ## 画面
 - 閲覧画面
