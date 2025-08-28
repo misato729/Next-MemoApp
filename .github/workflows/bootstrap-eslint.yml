@@ -18,17 +18,18 @@ jobs:
           node-version: 20
           cache: 'npm'
 
+      # 依存の追加（lockfileも生成）
       - name: Install ESLint & Next config
         run: npm i -D eslint eslint-config-next
 
-      # 常に上書き（対話回避のため）
+      # ESLint設定を常に上書き（対話プロンプト回避）
       - name: Write .eslintrc.json
         run: |
           echo '{
             "extends": ["next", "next/core-web-vitals"]
           }' > .eslintrc.json
 
-      # heredocを使わずnode -eで生成/更新
+      # tsconfig.json の生成/更新（heredocは使わず node -e で書き込み）
       - name: Ensure tsconfig.json and include
         run: |
           if [ ! -f tsconfig.json ]; then
@@ -37,25 +38,29 @@ jobs:
             node -e "const fs=require('fs'); const p='tsconfig.json'; const j=JSON.parse(fs.readFileSync(p,'utf8')); j.include=j.include||['next-env.d.ts','**/*.ts','**/*.tsx']; if(!j.include.includes('.next/types/**/*.ts')) j.include.push('.next/types/**/*.ts'); fs.writeFileSync(p, JSON.stringify(j,null,2)+'\n');"
           fi
 
+      # package.json の scripts を補完
       - name: Ensure package.json scripts
         run: |
           node -e 'const fs=require("fs");const p="package.json";const j=JSON.parse(fs.readFileSync(p,"utf8"));j.scripts=j.scripts||{};j.scripts.lint=j.scripts.lint||"next lint";j.scripts.typecheck=j.scripts.typecheck||"tsc --noEmit";j.scripts.build=j.scripts.build||"next build";fs.writeFileSync(p,JSON.stringify(j,null,2)+"\n");'
 
-      - name: Commit on branch
+      # 変更があるかを確認（デバッグ用）
+      - name: Debug changes
         run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -b chore/eslint-setup
-          git add -A
-          git commit -m "chore(eslint): ensure Next ESLint config & tsconfig include" || echo "No changes to commit"
-          git push -u origin chore/eslint-setup || echo "No changes to push"
+          git status
+          echo "----- changed files -----"
+          git diff --name-only || true
 
+      # ここで初めてブランチ作成〜コミット〜PR作成を実施（前の手動commit/pushは削除）
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           branch: chore/eslint-setup
+          commit-message: "chore(eslint): ensure Next ESLint config & tsconfig include"
           title: "chore(eslint): ensure Next ESLint config & tsconfig include"
           body: |
             - Add/overwrite `.eslintrc.json` with Next recommended config
             - Ensure `tsconfig.json` includes `.next/types/**/*.ts`
             - Ensure `lint` / `typecheck` / `build` scripts exist
+          labels: |
+            chore
+          delete-branch: true
