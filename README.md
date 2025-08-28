@@ -36,6 +36,7 @@ Zustandを使って、メモ一覧や選択中のメモなどの状態をグロ�
  - react-markdown+ remark-gfm
  - TailwindCSS + oklch color theme
  - LocalStorage persistence
+ - ![CI](https://github.com/misato729/Next-MemoApp)
 
 ## 画面
 - 閲覧画面
