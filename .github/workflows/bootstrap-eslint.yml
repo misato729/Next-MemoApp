@@ -21,63 +21,34 @@ jobs:
       - name: Install ESLint & Next config
         run: npm i -D eslint eslint-config-next
 
-      # 常に上書き（既存でも対話回避のために確実に置く）
+      # 常に上書き（対話回避のため）
       - name: Write .eslintrc.json
         run: |
-          cat > .eslintrc.json <<'EOF'
-          {
+          echo '{
             "extends": ["next", "next/core-web-vitals"]
-          }
-          EOF
+          }' > .eslintrc.json
 
-      # tsconfig が無い場合は生成、ある場合は .next/types を include に追加
+      # heredocを使わずnode -eで生成/更新
       - name: Ensure tsconfig.json and include
         run: |
           if [ ! -f tsconfig.json ]; then
-            cat > tsconfig.json <<'JSON'
-            {
-              "compilerOptions": {
-                "target": "ES2020",
-                "lib": ["dom", "dom.iterable", "es2020"],
-                "allowJs": true,
-                "skipLibCheck": true,
-                "strict": true,
-                "forceConsistentCasingInFileNames": true,
-                "noEmit": true,
-                "esModuleInterop": true,
-                "module": "ESNext",
-                "moduleResolution": "Bundler",
-                "resolveJsonModule": true,
-                "isolatedModules": true,
-                "jsx": "preserve",
-                "incremental": true,
-                "plugins": [{ "name": "next" }]
-              },
-              "include": [
-                "next-env.d.ts",
-                "**/*.ts",
-                "**/*.tsx",
-                ".next/types/**/*.ts"
-              ],
-              "exclude": ["node_modules"]
-            }
-            JSON
+            node -e "const fs=require('fs'); const j={compilerOptions:{target:'ES2020',lib:['dom','dom.iterable','es2020'],allowJs:true,skipLibCheck:true,strict:true,forceConsistentCasingInFileNames:true,noEmit:true,esModuleInterop:true,module:'ESNext',moduleResolution:'Bundler',resolveJsonModule:true,isolatedModules:true,jsx:'preserve',incremental:true,plugins:[{name:'next'}]},include:['next-env.d.ts','**/*.ts','**/*.tsx','.next/types/**/*.ts'],exclude:['node_modules']}; fs.writeFileSync('tsconfig.json', JSON.stringify(j,null,2)+'\n');"
           else
-            node -e 'const fs=require("fs");const p="tsconfig.json";const j=JSON.parse(fs.readFileSync(p,"utf8"));j.include=j.include||["next-env.d.ts","**/*.ts","**/*.tsx"];if(!j.include.includes(".next/types/**/*.ts")) j.include.push(".next/types/**/*.ts");fs.writeFileSync(p,JSON.stringify(j,null,2)+"\n");'
+            node -e "const fs=require('fs'); const p='tsconfig.json'; const j=JSON.parse(fs.readFileSync(p,'utf8')); j.include=j.include||['next-env.d.ts','**/*.ts','**/*.tsx']; if(!j.include.includes('.next/types/**/*.ts')) j.include.push('.next/types/**/*.ts'); fs.writeFileSync(p, JSON.stringify(j,null,2)+'\n');"
           fi
 
       - name: Ensure package.json scripts
         run: |
           node -e 'const fs=require("fs");const p="package.json";const j=JSON.parse(fs.readFileSync(p,"utf8"));j.scripts=j.scripts||{};j.scripts.lint=j.scripts.lint||"next lint";j.scripts.typecheck=j.scripts.typecheck||"tsc --noEmit";j.scripts.build=j.scripts.build||"next build";fs.writeFileSync(p,JSON.stringify(j,null,2)+"\n");'
 
-      - name: Commit changes
+      - name: Commit on branch
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b chore/eslint-setup
           git add -A
-          git commit -m "chore(eslint): ensure Next ESLint config & tsconfig include"
-          git push -u origin chore/eslint-setup
+          git commit -m "chore(eslint): ensure Next ESLint config & tsconfig include" || echo "No changes to commit"
+          git push -u origin chore/eslint-setup || echo "No changes to push"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
